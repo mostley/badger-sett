@@ -5,25 +5,35 @@ use rocket::serde::{json::Json, Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
 struct Member {
-    contents: &str,
+    fob_id: String,
+    name: String,
+    contact_data: String,
 }
 
-#[get("/member/<fobId>")]
-fn getMember(fobId: &str) -> Json<Member> {
-    format!("Hello, {} year old named {}!", fobId)
+#[get("/member/<fob_id>")]
+fn get_member(fob_id: &str) -> Option<Json<Member>> {
+    Some(Json(Member {
+        fob_id: fob_id.into(),
+        name: "pete".into(),
+        contact_data: "somewhere".into(),
+    }))
 }
 
 #[post("/member", data = "<member>")]
-fn createMember(name: &str, member: Form<Member<'_>>) -> String {
-    format!("Hello, {} year old named {}!",)
+fn create_member(member: Json<Member>) -> Json<Member> {
+    member
 }
 
-#[put("/member/<fobId>", data = "<msg>")]
-fn updateMember(fobId: &str, msg: Json<Message<'_>>) -> String {
-    format!("Hello, {} year old named {}!", age, name)
+#[put("/member/<fob_id>", data = "<member_data>")]
+fn update_member(fob_id: &str, member_data: Json<Member>) -> Option<Json<Member>> {
+    Some(Json(Member {
+        fob_id: fob_id.into(),
+        name: "pete".into(),
+        contact_data: "somewhere".into(),
+    }))
 }
 
 #[launch]
 fn rocket() -> _ {
-    rocket::build().mount("/api/v1", routes![getMember, createMember, updaterMember])
+    rocket::build().mount("/api/v1", routes![get_member, create_member, update_member])
 }
