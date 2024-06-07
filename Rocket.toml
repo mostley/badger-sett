@@ -1,0 +1,2 @@
+[default.databases.sqlite_badger]
+url = "badger.db"
