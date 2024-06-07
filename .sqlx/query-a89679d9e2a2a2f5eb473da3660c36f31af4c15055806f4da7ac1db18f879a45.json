@@ -1,0 +1,32 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT Tag, Name, Comment FROM Tags WHERE Tag = ?",
+  "describe": {
+    "columns": [
+      {
+        "name": "Tag",
+        "ordinal": 0,
+        "type_info": "Int64"
+      },
+      {
+        "name": "Name",
+        "ordinal": 1,
+        "type_info": "Text"
+      },
+      {
+        "name": "Comment",
+        "ordinal": 2,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "a89679d9e2a2a2f5eb473da3660c36f31af4c15055806f4da7ac1db18f879a45"
+}
