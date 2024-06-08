@@ -1,68 +1,66 @@
+mod database;
+mod error;
+
 #[macro_use]
 extern crate rocket;
 
-use rocket::serde::{json::Json, Deserialize, Serialize};
-use rocket_db_pools::{sqlx, Connection, Database};
+pub use self::error::{Error, Result};
 
-#[derive(Serialize, Deserialize)]
-struct Member {
-    fob_id: String,
-    name: String,
-    contact_data: String,
-}
+use crate::database::Member;
+
+use rocket::response::status::Created;
+use rocket::serde::json::{json, Json, Value};
+use rocket_db_pools::{sqlx, Connection, Database};
+use sqlx::Acquire;
 
 #[derive(Database)]
 #[database("sqlite_badger")]
-struct Badger(sqlx::SqlitePool);
-
-async fn get_member_by_id(mut db: Connection<Badger>, tag_number: Vec<u8>) -> Option<Json<Member>> {
-    sqlx::query!(
-        "SELECT Tag, Name, Comment FROM Tags WHERE Tag = ?",
-        tag_number
-    )
-    .fetch_one(&mut **db)
-    .await
-    .and_then(|r| {
-        Ok(Json(Member {
-            fob_id: hex::encode(tag_number),
-            name: r.Name.unwrap(),
-            contact_data: r.Comment.unwrap(),
-        }))
-    })
-    .ok()
-}
+pub struct BadgerDB(sqlx::SqlitePool);
 
 #[get("/member/<fob_id>")]
-async fn get_member(db: Connection<Badger>, fob_id: &str) -> Option<Json<Member>> {
-    let tag_number = hex::decode(fob_id);
-    match tag_number {
-        Ok(tag_number) => get_member_by_id(db, tag_number).await,
-        Err(err) => {
-            print!("{:?}", err);
+async fn get_member(db: Connection<BadgerDB>, fob_id: &str) -> Result<Json<Member>> {
+    let member = database::get_member_by_id(db, fob_id.into()).await?;
 
-            // invalid fob_id should lead to 404
-            None
-        }
-    }
+    Ok(Json(member))
 }
 
 #[post("/member", data = "<member>")]
-fn create_member(member: Json<Member>) -> Json<Member> {
-    member
+async fn create_member(
+    db: Connection<BadgerDB>,
+    member: Json<Member>,
+) -> Result<Created<Json<Member>>> {
+    let result = database::create_member(db, member.0).await?;
+
+    Ok(Created::new("/member").body(Json(result)))
 }
 
 #[put("/member/<fob_id>", data = "<member_data>")]
-fn update_member(fob_id: &str, member_data: Json<Member>) -> Option<Json<Member>> {
-    Some(Json(Member {
-        fob_id: fob_id.into(),
-        name: "pete".into(),
-        contact_data: "somewhere".into(),
-    }))
+async fn update_member(
+    db: Connection<BadgerDB>,
+    fob_id: &str,
+    member_data: Json<Member>,
+) -> Result<Created<Json<Member>>> {
+    let member = member_data.0;
+    if member.fob_id != fob_id {
+        return Err(Error::BadRequest("invalid fob_id in member data".into()));
+    }
+    let result = database::update_member(db, member).await?;
+
+    Ok(Created::new("/member").body(Json(result)))
+}
+
+#[catch(404)]
+fn general_not_found() -> Value {
+    json!({
+        "code": 404,
+        "status": "error",
+               "reason": "Resource was not found."
+    })
 }
 
 #[launch]
 fn rocket() -> _ {
     rocket::build()
-        .attach(Badger::init())
+        .attach(BadgerDB::init())
         .mount("/api/v1", routes![get_member, create_member, update_member])
 }

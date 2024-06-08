@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "UPDATE Tags SET Name = ?, Comment = ? WHERE Tag = ?",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 3
+    },
+    "nullable": []
+  },
+  "hash": "c14485637a55defb3b9e33c9482e9e8dad6e3f322b44946c8591b7febab7016b"
+}
