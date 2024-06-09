@@ -22,7 +22,7 @@ To start the server run
 Retrieves the entry for a specific member using his fob ID.
 
 #### Example
-    curl http://127.0.0.1:8000/api/v1/member/cded8211
+    curl http://127.0.0.1:8000/api/v1/member/abcd1234
 ```json
 {
   "fob_id": "abcd1234",
@@ -56,7 +56,7 @@ Updates an existing entry for a member.
 curl -v -X PUT -d '{ "fob_id": "abcd1234", "name": "Peter Mustermann", "contact_data": "Email me: peter@mustermann.de" }' -H 'Content-Type: application/json' http://127.0.0.1:8000/api/v1/member/abcd1234
 ```json
 {
-  "fob_id": "abc123",
+  "fob_id": "abc1234",
   "name": "Peter Mustermann",
   "contact_data": "Email me: peter@mustermann.de"
 }
