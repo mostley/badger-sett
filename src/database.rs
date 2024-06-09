@@ -71,6 +71,9 @@ pub async fn update_member(
     db: &mut Connection<crate::BadgerDB>,
     updated_member: Member,
 ) -> Result<Member> {
+    // Make sure member exists
+    get_member_by_id(db, updated_member.fob_id.clone()).await?;
+
     let tag_number = hex::decode(updated_member.fob_id.to_owned()).map_err(|_| {
         Error::BadRequest("Invalid fob_id, should be formatted as a 4 byte hex".into())
     })?;
