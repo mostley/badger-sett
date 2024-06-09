@@ -39,14 +39,14 @@ async fn update_member(
     db: Connection<BadgerDB>,
     fob_id: &str,
     member_data: Json<Member>,
-) -> Result<Created<Json<Member>>> {
+) -> Result<Json<Member>> {
     let member = member_data.0;
     if member.fob_id != fob_id {
         return Err(Error::BadRequest("invalid fob_id in member data".into()));
     }
     let result = database::update_member(db, member).await?;
 
-    Ok(Created::new("/member").body(Json(result)))
+    Ok(Json(result))
 }
 
 #[catch(404)]
