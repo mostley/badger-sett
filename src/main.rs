@@ -18,25 +18,25 @@ use sqlx::Acquire;
 pub struct BadgerDB(sqlx::SqlitePool);
 
 #[get("/member/<fob_id>")]
-async fn get_member(db: Connection<BadgerDB>, fob_id: &str) -> Result<Json<Member>> {
-    let member = database::get_member_by_id(db, fob_id.into()).await?;
+async fn get_member(mut db: Connection<BadgerDB>, fob_id: &str) -> Result<Json<Member>> {
+    let member = database::get_member_by_id(&mut db, fob_id.into()).await?;
 
     Ok(Json(member))
 }
 
 #[post("/member", data = "<member>")]
 async fn create_member(
-    db: Connection<BadgerDB>,
+    mut db: Connection<BadgerDB>,
     member: Json<Member>,
 ) -> Result<Created<Json<Member>>> {
-    let result = database::create_member(db, member.0).await?;
+    let result = database::create_member(&mut db, member.0).await?;
 
     Ok(Created::new("/member").body(Json(result)))
 }
 
 #[put("/member/<fob_id>", data = "<member_data>")]
 async fn update_member(
-    db: Connection<BadgerDB>,
+    mut db: Connection<BadgerDB>,
     fob_id: &str,
     member_data: Json<Member>,
 ) -> Result<Json<Member>> {
@@ -44,7 +44,7 @@ async fn update_member(
     if member.fob_id != fob_id {
         return Err(Error::BadRequest("invalid fob_id in member data".into()));
     }
-    let result = database::update_member(db, member).await?;
+    let result = database::update_member(&mut db, member).await?;
 
     Ok(Json(result))
 }

@@ -16,7 +16,7 @@ pub struct Member {
 }
 
 pub async fn get_member_by_id(
-    mut db: Connection<crate::BadgerDB>,
+    db: &mut Connection<crate::BadgerDB>,
     fob_id: String,
 ) -> Result<Member> {
     let tag_number = hex::decode(fob_id).map_err(|_| {
@@ -27,7 +27,7 @@ pub async fn get_member_by_id(
         "SELECT Tag, Name, Comment FROM Tags WHERE Tag = ?",
         tag_number
     )
-    .fetch_one(&mut **db)
+    .fetch_one(&mut ***db)
     .await?;
 
     Ok(Member {
@@ -37,7 +37,7 @@ pub async fn get_member_by_id(
     })
 }
 
-pub async fn has_member_by_id(mut db: Connection<crate::BadgerDB>, fob_id: String) -> Result<bool> {
+pub async fn has_member_by_id(db: &mut Connection<crate::BadgerDB>, fob_id: String) -> Result<bool> {
     let member_result = get_member_by_id(db, fob_id).await;
     match member_result {
         Ok(_) => Ok(true),
@@ -47,7 +47,7 @@ pub async fn has_member_by_id(mut db: Connection<crate::BadgerDB>, fob_id: Strin
 }
 
 pub async fn create_member(
-    mut db: Connection<crate::BadgerDB>,
+    db: &mut Connection<crate::BadgerDB>,
     new_member: Member,
 ) -> Result<Member> {
     let tag_number = hex::decode(new_member.fob_id.to_owned()).map_err(|_| {
@@ -60,7 +60,7 @@ pub async fn create_member(
         new_member.name,
         new_member.contact_data
     )
-    .fetch(&mut **db)
+    .fetch(&mut ***db)
     .try_collect::<Vec<_>>()
     .await?;
 
@@ -68,7 +68,7 @@ pub async fn create_member(
 }
 
 pub async fn update_member(
-    mut db: Connection<crate::BadgerDB>,
+    db: &mut Connection<crate::BadgerDB>,
     updated_member: Member,
 ) -> Result<Member> {
     let tag_number = hex::decode(updated_member.fob_id.to_owned()).map_err(|_| {
@@ -81,7 +81,7 @@ pub async fn update_member(
         updated_member.contact_data,
         tag_number,
     )
-    .fetch(&mut **db)
+    .fetch(&mut ***db)
     .try_collect::<Vec<_>>()
     .await?;
 
