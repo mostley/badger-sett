@@ -15,13 +15,21 @@ pub struct Member {
     pub contact_data: String,
 }
 
+fn parse_fob_id(id_str: &str) -> Result<[u8; 4]> {
+    let mut id_bytes = [0u8; 4];
+
+    hex::decode_to_slice(id_str, &mut id_bytes as &mut [u8]).map_err(|_| {
+        Error::BadRequest("Invalid fob_id, should be formatted as a 4 byte hex".into())
+    })?;
+
+    Ok(id_bytes)
+}
+
 pub async fn get_member_by_id(
     db: &mut Connection<crate::BadgerDB>,
     fob_id: String,
 ) -> Result<Member> {
-    let tag_number = hex::decode(fob_id).map_err(|_| {
-        Error::BadRequest("Invalid fob_id, should be formatted as a 4 byte hex".into())
-    })?;
+    let tag_number = &parse_fob_id(&fob_id)?[..];
 
     let member = sqlx::query!(
         "SELECT Tag, Name, Comment FROM Tags WHERE Tag = ?",
@@ -37,7 +45,10 @@ pub async fn get_member_by_id(
     })
 }
 
-pub async fn has_member_by_id(db: &mut Connection<crate::BadgerDB>, fob_id: String) -> Result<bool> {
+pub async fn has_member_by_id(
+    db: &mut Connection<crate::BadgerDB>,
+    fob_id: String,
+) -> Result<bool> {
     let member_result = get_member_by_id(db, fob_id).await;
     match member_result {
         Ok(_) => Ok(true),
@@ -50,9 +61,7 @@ pub async fn create_member(
     db: &mut Connection<crate::BadgerDB>,
     new_member: Member,
 ) -> Result<Member> {
-    let tag_number = hex::decode(new_member.fob_id.to_owned()).map_err(|_| {
-        Error::BadRequest("Invalid fob_id, should be formatted as a 4 byte hex".into())
-    })?;
+    let tag_number = &parse_fob_id(&new_member.fob_id)?[..];
 
     let results = sqlx::query!(
         "INSERT INTO Tags (Tag, Name, Comment) VALUES (?, ?, ?)",
@@ -74,9 +83,7 @@ pub async fn update_member(
     // Make sure member exists
     get_member_by_id(db, updated_member.fob_id.clone()).await?;
 
-    let tag_number = hex::decode(updated_member.fob_id.to_owned()).map_err(|_| {
-        Error::BadRequest("Invalid fob_id, should be formatted as a 4 byte hex".into())
-    })?;
+    let tag_number = &parse_fob_id(&updated_member.fob_id)?[..];
 
     let results = sqlx::query!(
         "UPDATE Tags SET Name = ?, Comment = ? WHERE Tag = ?",
