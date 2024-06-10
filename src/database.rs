@@ -97,3 +97,23 @@ pub async fn update_member(
 
     Ok(updated_member)
 }
+
+pub async fn delete_member(
+    db: &mut Connection<crate::BadgerDB>,
+    fob_id: String,
+) -> Result<()> {
+    // Make sure member exists
+    get_member_by_id(db, fob_id.clone()).await?;
+
+    let tag_number = &parse_fob_id(&fob_id)?[..];
+
+    let results = sqlx::query!(
+        "DELETE FROM Tags WHERE Tag = ?",
+        tag_number
+    )
+    .fetch(&mut ***db)
+    .try_collect::<Vec<_>>()
+    .await?;
+
+    Ok(())
+}

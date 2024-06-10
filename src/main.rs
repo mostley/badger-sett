@@ -8,7 +8,7 @@ pub use self::error::{Error, Result};
 
 use crate::database::Member;
 
-use rocket::response::status::Created;
+use rocket::response::status::{Created, NoContent};
 use rocket::serde::json::{json, Json, Value};
 use rocket_db_pools::{sqlx, Connection, Database};
 use sqlx::Acquire;
@@ -49,6 +49,13 @@ async fn update_member(
     Ok(Json(result))
 }
 
+#[delete("/member/<fob_id>")]
+async fn delete_member(mut db: Connection<BadgerDB>, fob_id: &str) -> Result<NoContent> {
+    database::delete_member(&mut db, fob_id.into()).await?;
+
+    Ok(NoContent)
+}
+
 #[catch(404)]
 fn general_not_found() -> Value {
     json!({
@@ -62,5 +69,5 @@ fn general_not_found() -> Value {
 fn rocket() -> _ {
     rocket::build()
         .attach(BadgerDB::init())
-        .mount("/api/v1", routes![get_member, create_member, update_member])
+        .mount("/api/v1", routes![get_member, create_member, update_member, delete_member])
 }

@@ -61,3 +61,14 @@ curl -v -X PUT -d '{ "fob_id": "abcd1234", "name": "Peter Mustermann", "contact_
   "contact_data": "Email me: peter@mustermann.de"
 }
 ```
+
+### `DELETE /member/<fob_id>`
+
+Remove an entry for a member.
+
+#### Example
+
+curl -v -X DELETE http://127.0.0.1:8000/api/v1/member/abcd1234
+```json
+{ }
+```
