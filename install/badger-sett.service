@@ -1,0 +1,9 @@
+[Unit]
+Description=Service for the badger-sett server
+
+[Service]
+WorkingDirectory=/var/lib/badger-sett
+ExecStart=/usr/local/bin/badger-sett
+
+[Install]
+WantedBy=multi-user.target
