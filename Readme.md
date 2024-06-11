@@ -5,6 +5,15 @@ small api to access the badger db
     cargo install
     cargo install sqlx-cli --no-default-features --features sqlite
 
+## Cross Compilation
+
+Use `cross` to compile for the Badger PC (`x86_64-unknown-linux-gnu`)
+
+    cross build --release --target x86_64-unknown-linux-gnu
+
+To install, the `badger-sett` binary is needed and a `Rocket.toml` pointing to
+the database file
+
 ## Update sqlx query definitions
 This is needed to update the typing information for the query strings
 

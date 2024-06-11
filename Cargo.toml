@@ -21,3 +21,6 @@ features = ["macros", "migrate"]
 [dependencies.rocket_db_pools]
 version = "0.2.0"
 features = ["sqlx_sqlite"]
+
+[dev-dependencies]
+cross = { git = "https://github.com/cross-rs/cross" }
