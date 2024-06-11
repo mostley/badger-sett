@@ -17,7 +17,7 @@ To start the server run
 
 ## REST interface
 
-### `GET /member/<fob_id>`
+### `GET /member/<fobId>`
 
 Retrieves the entry for a specific member using his fob ID.
 
@@ -25,9 +25,9 @@ Retrieves the entry for a specific member using his fob ID.
     curl http://127.0.0.1:8000/api/v1/member/abcd1234
 ```json
 {
-  "fob_id": "abcd1234",
+  "fobId": "abcd1234",
   "name": "Peter Mustermann",
-  "contact_data": "Call me at 0800123123"
+  "contactData": "Call me at 0800123123"
 }
 ```
 
@@ -37,32 +37,32 @@ Creates a new entry for a member.
 
 #### Example
 
-    curl -v -X POST -d '{ "fob_id": "abcd1234", "name": "Peter Mustermann", "contact_data": "Call me at 0800123123" }' -H 'Content-Type: application/json' http://127.0.0.1:8000/api/v1/member
+    curl -v -X POST -d '{ "fobId": "abcd1234", "name": "Peter Mustermann", "contactData": "Call me at 0800123123" }' -H 'Content-Type: application/json' http://127.0.0.1:8000/api/v1/member
 
 ```json
 {
-  "fob_id": "abcd1234",
+  "fobId": "abcd1234",
   "name": "Peter Mustermann",
-  "contact_data": "Call me at 0800123123"
+  "contactData": "Call me at 0800123123"
 }
 ```
 
 
-### `PUT /member/<fob_id>`
+### `PUT /member/<fobId>`
 
 Updates an existing entry for a member.
 
 #### Example
-curl -v -X PUT -d '{ "fob_id": "abcd1234", "name": "Peter Mustermann", "contact_data": "Email me: peter@mustermann.de" }' -H 'Content-Type: application/json' http://127.0.0.1:8000/api/v1/member/abcd1234
+curl -v -X PUT -d '{ "fobId": "abcd1234", "name": "Peter Mustermann", "contactData": "Email me: peter@mustermann.de" }' -H 'Content-Type: application/json' http://127.0.0.1:8000/api/v1/member/abcd1234
 ```json
 {
-  "fob_id": "abc1234",
+  "fobId": "abc1234",
   "name": "Peter Mustermann",
-  "contact_data": "Email me: peter@mustermann.de"
+  "contactData": "Email me: peter@mustermann.de"
 }
 ```
 
-### `DELETE /member/<fob_id>`
+### `DELETE /member/<fobId>`
 
 Remove an entry for a member.
 
